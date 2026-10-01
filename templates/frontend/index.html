@@ -1,0 +1,221 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Code Change Impact Analyzer & Live Test Studio</title>
+    <link rel="stylesheet" href="{% static 'frontend/app.css' %}">
+</head>
+<body>
+    <main class="shell">
+        <header class="top-bar">
+            <div class="brand">
+                <span class="eyebrow">CODE CHANGE INTELLIGENCE</span>
+                <div class="brand-title">Code Impact & Test Studio</div>
+            </div>
+            <div class="top-nav">
+                <button class="nav-tab active" id="tab-quick-analyze">⚡ Code Analyzer & Tests</button>
+                <button class="nav-tab" id="tab-projects">📁 Projects & Git Impact</button>
+                <div class="user-menu" id="user-menu">
+                    <span id="user-display" class="user-display hidden"></span>
+                    <button class="text-button" id="auth-toggle-btn">Sign in</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Hero Section -->
+        <section class="hero">
+            <h1>Analyze Code, Run Tests & Predict Impact</h1>
+            <p class="hero-copy">Paste any Python function or module to execute live test cases, inspect edge-case risks, and get an instant plain-English breakdown of runtime behavior.</p>
+            <div class="hero-rule"></div>
+            <div class="hero-meta">
+                <span>AST Symbol Analysis</span>
+                <span>Automated Pytest Runner</span>
+                <span>ZeroDivision & Risk Detection</span>
+                <span>Plain-English Explanations</span>
+            </div>
+        </section>
+
+        <!-- Studio Section (Primary View) -->
+        <section class="studio-container" id="studio-view">
+            <div class="studio-grid">
+                <!-- Left: Code Input & Options -->
+                <div class="editor-pane">
+                    <div class="pane-header">
+                        <div>
+                            <span class="kicker">INPUT</span>
+                            <h3>Paste Python Code</h3>
+                        </div>
+                        <div class="sample-actions">
+                            <button type="button" class="chip-button" id="load-calc-sample">Sample: Calculator</button>
+                            <button type="button" class="chip-button" id="load-string-sample">Sample: Strings</button>
+                            <button type="button" class="chip-button" id="clear-code">Clear</button>
+                        </div>
+                    </div>
+
+                    <form id="quick-code-form">
+                        <div class="code-wrapper">
+                            <textarea id="live-source-code" class="code-editor" spellcheck="false" placeholder="def add(a, b):&#10;    return a + b&#10;&#10;def divide(a, b):&#10;    return a / b"></textarea>
+                        </div>
+
+                        <div class="test-config-box">
+                            <div class="test-config-header">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="auto-tests-checkbox" checked>
+                                    <span>Automatically generate smart test cases</span>
+                                </label>
+                                <button type="button" class="text-button" id="toggle-custom-tests">Custom test cases</button>
+                            </div>
+                            <div class="custom-tests-container hidden" id="custom-tests-container">
+                                <label>Custom Pytest Code (optional)
+                                    <textarea id="live-test-code" class="code-editor small" spellcheck="false" placeholder="import pytest&#10;from main import *&#10;&#10;def test_custom():&#10;    assert add(2, 3) == 5"></textarea>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="action-bar">
+                            <button class="primary large-btn" type="submit" id="btn-run-analysis">
+                                <span class="btn-text">▶ Run Tests & Explain Code</span>
+                            </button>
+                            <span class="loading-spinner hidden" id="analysis-spinner"></span>
+                        </div>
+                        <p class="form-message" id="studio-message"></p>
+                    </form>
+                </div>
+
+                <!-- Right: Analysis & Test Results -->
+                <div class="results-pane">
+                    <div class="pane-header">
+                        <div>
+                            <span class="kicker">EXECUTION REPORT</span>
+                            <h3 id="result-header-title">Live Analysis & Results</h3>
+                        </div>
+                        <div class="pill-group">
+                            <span class="pill ready" id="status-pill">READY</span>
+                            <span class="pill" id="score-pill">RISK SCORE: --</span>
+                        </div>
+                    </div>
+
+                    <div id="studio-result-content" class="result-content empty-state">
+                        <div class="empty-icon">⚡</div>
+                        <h3>No code analyzed yet</h3>
+                        <p>Paste Python code on the left and click <strong>"Run Tests & Explain Code"</strong> to execute live test cases and receive a plain-English explanation.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Projects Workspace (Secondary View) -->
+        <section class="workspace hidden" id="projects-view">
+            <header class="workspace-header">
+                <div>
+                    <span class="kicker">PROJECT CONTROL</span>
+                    <h2>Codebase & Multi-File Repository Workspace</h2>
+                </div>
+                <button class="text-button" id="logout">Sign out</button>
+            </header>
+            <div class="workspace-grid">
+                <aside class="project-column">
+                    <div class="section-top">
+                        <h3>Projects</h3>
+                        <button class="icon-button" id="new-project" title="New project">+</button>
+                    </div>
+                    <div id="project-list" class="project-list"></div>
+                    <form id="project-form" class="project-form">
+                        <input id="project-name" placeholder="Project name" required maxlength="200">
+                        <input id="project-language" placeholder="Language" value="python">
+                        <textarea id="project-description" placeholder="Project description"></textarea>
+                        <button class="primary" type="submit">Create Project</button>
+                        <p class="form-message" id="project-message"></p>
+                    </form>
+                </aside>
+                <section class="analysis-column">
+                    <div class="section-top">
+                        <div>
+                            <h3 id="selected-project">Select a project</h3>
+                            <p id="selected-project-meta">Create or choose a project from the left sidebar.</p>
+                        </div>
+                        <span class="pill" id="risk-pill">READY</span>
+                    </div>
+
+                    <div class="workspace-subtabs">
+                        <button class="subtab-btn active" id="subtab-diff">Unified Diff Impact</button>
+                        <button class="subtab-btn" id="subtab-audit">Archive / File Audit</button>
+                    </div>
+
+                    <form id="analysis-form" class="analysis-form">
+                        <label>Unified diff
+                            <textarea id="diff-content" spellcheck="false" placeholder="Paste a unified git diff here..."></textarea>
+                        </label>
+                        <div class="diff-hint">Computes symbol-level call graphs, transitive dependents, and regression risk scores.</div>
+                        <button class="primary" type="submit">Analyze Diff Impact</button>
+                        <p class="form-message" id="analysis-message"></p>
+                    </form>
+
+                    <form id="audit-form" class="analysis-form hidden">
+                        <label>Project archive (.zip)
+                            <input id="project-archive" type="file" accept=".zip,application/zip">
+                        </label>
+                        <div class="paste-divider">OR PASTE SOURCE & TESTS</div>
+                        <label>Source file name
+                            <input id="source-path" type="text" value="main.py">
+                        </label>
+                        <label>Source code
+                            <textarea id="source-code" class="code-input" spellcheck="false" placeholder="def add(a, b):&#10;    return a + b"></textarea>
+                        </label>
+                        <label>Test file name
+                            <input id="test-path" type="text" value="test_main.py">
+                        </label>
+                        <label>Test code
+                            <textarea id="test-code" class="code-input" spellcheck="false" placeholder="from main import add&#10;&#10;def test_add():&#10;    assert add(2, 3) == 5"></textarea>
+                        </label>
+                        <button class="primary" type="submit">Run Project Audit</button>
+                        <p class="form-message" id="audit-message"></p>
+                    </form>
+
+                    <div id="result" class="result empty-state">
+                        <span class="result-mark">+</span>
+                        <h3>No diff analysis yet</h3>
+                        <p>Choose a project and analyze a diff or project archive.</p>
+                    </div>
+                </section>
+            </div>
+        </section>
+
+        <!-- Auth Modal Panel -->
+        <div class="modal-backdrop hidden" id="auth-modal">
+            <div class="panel modal-panel">
+                <div class="panel-heading">
+                    <div>
+                        <span class="kicker">ACCOUNT</span>
+                        <h2 id="auth-modal-title">Sign in to your account</h2>
+                    </div>
+                    <button class="close-btn" id="close-auth-modal">&times;</button>
+                </div>
+                <form id="auth-form">
+                    <label>Email
+                        <input id="email" type="email" autocomplete="email" required>
+                    </label>
+                    <label>Password
+                        <div class="password-field">
+                            <input id="password" type="password" autocomplete="current-password" required minlength="8">
+                            <button class="password-toggle" type="button" id="toggle-password" aria-label="Show password">Show</button>
+                        </div>
+                    </label>
+                    <label class="register-only hidden">Username
+                        <input id="username" type="text">
+                    </label>
+                    <div class="form-actions">
+                        <button class="primary" type="submit" id="auth-submit">Sign in</button>
+                        <button class="text-button" type="button" id="toggle-auth">Create account</button>
+                    </div>
+                    <p class="form-message" id="auth-message"></p>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script src="{% static 'frontend/app.js' %}"></script>
+</body>
+</html>

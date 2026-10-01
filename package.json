@@ -1,0 +1,20 @@
+{
+  "name": "code-change-impact-analyzer",
+  "version": "1.0.0",
+  "description": "Code Change Impact Analyzer - Full-stack Django and AST intelligence application",
+  "scripts": {
+    "dev": ".\\venv\\Scripts\\python.exe manage.py runserver",
+    "start": ".\\venv\\Scripts\\python.exe manage.py runserver",
+    "check": ".\\venv\\Scripts\\python.exe manage.py check",
+    "migrate": ".\\venv\\Scripts\\python.exe manage.py migrate",
+    "test": ".\\venv\\Scripts\\pytest.exe"
+  },
+  "keywords": [
+    "django",
+    "impact-analysis",
+    "ast-analyzer",
+    "code-analysis"
+  ],
+  "author": "",
+  "license": "ISC"
+}
