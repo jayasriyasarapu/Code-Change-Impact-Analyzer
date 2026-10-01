@@ -1,4 +1,4 @@
-Project: Code Change Impact Analyzer (project #5, Intermediate), built for your GenAI class.
+Project: Code Change Impact Analyzer (project #5, Intermediate), built for  GenAI class.
 Goal: Given a Git diff and a repository, find the modules, APIs, tests and docs that may be affected, retrieving context from the whole repo instead of only the changed file.
 Concepts: code embeddings, RAG, LLM code analysis.
 Mandatory requirements:
