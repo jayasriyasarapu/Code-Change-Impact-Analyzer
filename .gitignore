@@ -1,1 +1,7 @@
-
+.env
+db.sqlite3
+project_storage/
+__pycache__/
+*.pyc
+node_modules/
+.DS_Store
